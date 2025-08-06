@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>CRAFT STUDIO — オリジナルグッズ EC</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+
+<body style="opacity:0">
+  <div class="gradient-bg"></div><div class="noise"></div>
+
+  <!-- ===== Header ===== -->
+  <header>
+    <div class="header-content">
+      <div class="logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">CRAFT STUDIO</div>
+      <nav><ul>
+        <li><a href="#categories">カテゴリー</a></li>
+        <li><a href="#products">商品一覧</a></li>
+        <li><a href="https://ziroz-tech.github.io/ZF/" target="_blank">ZFront.inc</a></li>
+      </ul></nav>
+    </div>
+  </header>
+
+  <!-- ===== Hero ===== -->
+  <section class="hero" id="top">
+    <h1>Make&nbsp;It&nbsp;Unique.</h1>
+    <p>世界にひとつだけのアイテムを。</p>
+    <a href="#products" class="cta-button">商品を見る</a>
+    <div class="floating-elements">
+      <span class="float-shape"></span><span class="float-shape"></span><span class="float-shape"></span>
+    </div>
+  </section>
+  <!-- ===== Order Flow ===== -->
+  <section class="orderflow">
+    <h2 class="section-title">ご注文の流れ</h2>
+
+    <div class="flow-wrapper">
+        <div class="flow-step">
+        <div class="step-icon">💡</div>
+        <h3>アイディアを探す</h3>
+        <p>事例やギャラリーから着想を得ましょう。</p>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-icon">🛒</div>
+        <h3>仕様を選択</h3>
+        <p>材質・数量などを指定してカートへ。</p>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-icon">📝</div>
+        <h3>見積フォーム送信</h3>
+        <p>自動入力された内容を確認して依頼。</p>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-icon">💬</div>
+        <h3>プラン決定</h3>
+        <p>担当者とチャットで最終調整。</p>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-icon">🏭</div>
+        <h3>製造・発送</h3>
+        <p>国内工房で製造し、検品後に出荷。</p>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-icon">📦</div>
+        <h3>受け取り</h3>
+        <p>世界にひとつだけのアイテムが到着！</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Categories ===== -->
+  <section class="categories" id="categories">
+    <h2 class="section-title">カテゴリー</h2>
+    <div class="category-grid">
+      <div class="category-card"><div class="category-icon">🔑</div><h3 class="category-title">アクセサリ</h3><p class="category-desc">キーホルダー など</p></div>
+      <div class="category-card"><div class="category-icon">☕</div><h3 class="category-title">インテリア</h3><p class="category-desc">コースター、LED&nbsp;ランプ</p></div>
+      <div class="category-card"><div class="category-icon">🎨</div><h3 class="category-title">デザイン</h3><p class="category-desc">フィギュア など</p></div>
+      <div class="category-card"><div class="category-icon">🏪</div><h3 class="category-title">ビジネス</h3><p class="category-desc">販促・看板</p></div>
+    </div>
+  </section>
+
+  <!-- ===== Products ===== -->
+  <section class="products" id="products">
+    <h2 class="section-title">商品一覧</h2>
+    <div class="filter-tabs">
+      <div class="filter-tab active">すべて</div>
+      <div class="filter-tab">キーホルダー</div>
+      <div class="filter-tab">コースター</div>
+      <div class="filter-tab">照明・LED</div>
+      <div class="filter-tab">フィギュア</div>
+      <div class="filter-tab">ビジネス向け</div>
+    </div>
+    <div class="product-grid" id="productGrid"></div>
+  </section>
+
+  <!-- ===== Modal ===== -->
+  <div class="modal" id="productModal">
+    <div class="modal-content">
+      <div class="modal-close">✕</div>
+
+      <div class="modal-body">
+        <div class="modal-image">
+          <button class="nav-btn nav-prev">‹</button>
+          <img id="modalMainImg" src="" alt="">
+          <button class="nav-btn nav-next">›</button>
+        </div>
+
+        <div class="modal-details">
+          <h2 class="modal-title" id="modalTitle"></h2>
+          <div class="product-price" id="modalPrice"></div>
+
+          <div class="customization-section">
+            <h3 class="customization-title">素材を選択</h3>
+            <div class="material-options" id="materialOptions"></div>
+          </div>
+
+          <div class="qty-box">
+            <button class="qty-btn" id="qtyMinus">–</button>
+            <span id="qtyValue">1</span>
+            <button class="qty-btn" id="qtyPlus">＋</button>
+          </div>
+
+          <button class="add-to-cart" id="addToCartBtn">カートに追加</button>
+        </div>
+      </div>
+
+      <div class="thumb-strip" id="modalThumbs"></div>
+    </div>
+  </div>
+
+  <!-- ===== Checkout ボタン ===== -->
+  <button id="checkoutBtn" class="add-to-cart" style="max-width:300px;margin:3rem auto;display:block">
+    見積もりを依頼する
+  </button>
+
+  <!-- ===== Footer ===== -->
+  <footer><p>&copy; 2025 CRAFT STUDIO. All rights reserved.</p></footer>
+
+  <!-- ==== Floating Mini Cart ==== -->
+  <div id="miniCart" class="mini-cart">
+    <span id="cartCount">0</span> 🛒
+    <div id="cartDropdown" class="cart-dropdown"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

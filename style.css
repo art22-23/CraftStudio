@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>譜読みトレーナー — Grand Staff</title>
+
+<!-- 外部スタイル -->
+<link rel="stylesheet" href="styles.css" />
+
+<!-- ライブラリ -->
+<script src="https://cdn.jsdelivr.net/npm/vexflow@5.0.0/build/cjs/vexflow.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<!-- Google AdSense（ID を置換／不要ならコメントアウト） -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+        data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"></script>
+</head>
+
+<body>
+<div class="wrap">
+  <header><h1>譜読みトレーナー</h1></header>
+
+  <!-- 上バナー広告 -->
+  <div class="ad-top">
+    <ins class="adsbygoogle"
+         style="display:block;width:100%;max-width:728px;height:90px;margin:0 auto"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-slot="YYYYYYYYYY"
+         data-ad-format="horizontal"></ins>
+  </div>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+
+  <!-- ─── メイン ─── -->
+  <section class="panel">
+    <!-- 譜面 -->
+    <div class="staff-shell">
+      <div class="staff-frame" id="staffFrame">
+        <div id="staffScroll">
+          <div id="staffHost"></div>
+          <canvas id="highlightCanvas"></canvas>
+        </div>
+        <div id="judgeLayer"></div>
+      </div>
+    </div>
+
+    <!-- キーボード -->
+    <div class="kbd-wrap">
+      <div class="kbd">
+        <div id="kbdBlacks" class="kbd-blacks"></div>
+        <div id="kbdWhites" class="kbd-whites"></div>
+      </div>
+      <div class="help">上段：黒鍵、下段：白鍵。オクターブは問いません（マイク時は厳密）。</div>
+    </div>
+
+    <!-- 設定 UI（折りたたみカード方式） -->
+    <div class="controls">
+
+      <!-- 動作モード -->
+      <details open class="card">
+        <summary><span class="icon">🎛️</span> 動作モード</summary>
+        <div class="grid-2">
+          <button id="modeSimple" class="btn btn-outline w-full">🎹 鍵盤で回答</button>
+          <button id="modeMic"    class="btn btn-outline w-full">🎙️ マイクで回答</button>
+        </div>
+      </details>
+
+      <!-- 出題範囲 -->
+      <details class="card">
+        <summary><span class="icon">🔔</span> 出題範囲</summary>
+        <div class="grid-2">
+          <label>最低音</label><select id="lowNote"></select>
+          <label>最高音</label><select id="highNote"></select>
+        </div>
+      </details>
+
+      <!-- 表記 & 音名 -->
+      <details class="card">
+        <summary><span class="icon">🎼</span> 表記と音名</summary>
+        <div class="grid-2">
+          <label>♯/♭ の扱い</label>
+          <select id="accidentals">
+            <option value="natural">ナチュラルのみ</option>
+            <option value="sharp">♯のみ</option>
+            <option value="flat">♭のみ</option>
+            <option value="both">♯/♭混在</option>
+          </select>
+
+          <label>オクターブ一致</label>
+          <select id="octaveStrict">
+            <option value="false" selected>無視する</option>
+            <option value="true">厳密に判定</option>
+          </select>
+        </div>
+      </details>
+
+      <!-- 速度 & ピッチ -->
+      <details class="card">
+        <summary><span class="icon">⏱️</span> 速度と判定</summary>
+        <div class="grid-2">
+          <label>速度モード</label>
+          <select id="speedMode">
+            <option value="normal" selected>普通（≤1 秒）</option>
+            <option value="pro">プロ（350–900 ms）</option>
+          </select>
+
+          <label>基準ピッチ (A4)</label>
+          <input id="a4" type="number" min="415" max="466" step="1" value="440" />
+        </div>
+      </details>
+
+      <!-- マイク -->
+      <details class="card">
+        <summary><span class="icon">🎤</span> マイク</summary>
+        <div class="grid-2">
+          <button id="startMic" class="btn btn-primary w-full">マイク開始 / 停止</button>
+          <div id="micStatus" class="pill">Mic OFF</div>
+          <div id="pitchReadout" class="pill">– Hz</div>
+        </div>
+      </details>
+
+      <!-- 次へ -->
+      <div class="row-end">
+        <button id="nextBtn" class="btn btn-accent w-full">▶ 次の問題</button>
+      </div>
+    </div><!-- /.controls -->
+
+    <!-- HUD -->
+    <div class="stats">
+      <div class="stat">問題 <b id="qCount">0</b></div>
+      <div class="stat">正解 <b id="correct">0</b></div>
+      <div class="stat">正答率 <b id="acc">0%</b></div>
+      <div class="stat">連続正解 <b id="streak">0</b></div>
+
+      <div class="score">
+        <div class="tile" id="tileScore"><h3>SCORE</h3><p id="scoreVal">0</p></div>
+        <div class="tile" id="tileMult"><h3>MULT</h3><p id="multVal">x1</p></div>
+        <div class="tile" id="tileLast"><h3>LAST</h3><p id="lastRank">—</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 下バナー広告 -->
+  <div class="ad-bottom">
+    <ins class="adsbygoogle"
+         style="display:block;width:100%;max-width:728px;height:90px;margin:24px auto 0"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-slot="ZZZZZZZZZZ"
+         data-ad-format="horizontal"></ins>
+  </div>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+
+  <footer>Grand Staff + Web Audio — © 2025</footer>
+</div>
+
+<!-- 外部スクリプト -->
+<script src="app.js" defer></script>
+</body>
+</html>
