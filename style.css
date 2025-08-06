@@ -1,159 +1,186 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>譜読みトレーナー — Grand Staff</title>
+/* ==========================================================
+   CRAFT STUDIO – Global Stylesheet (完全版)
+========================================================== */
 
-<!-- 外部スタイル -->
-<link rel="stylesheet" href="styles.css" />
+/* ---------- 0. Reset ---------- */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{scroll-behavior:smooth}
 
-<!-- ライブラリ -->
-<script src="https://cdn.jsdelivr.net/npm/vexflow@5.0.0/build/cjs/vexflow.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+/* ---------- 1. Design Tokens ---------- */
+:root{
+  --bg:#ffffff;             /* ページ背景 */
+  --surface:#f7f7f8;        /* カード等 */
+  --border:rgba(0,0,0,.06);
 
-<!-- Google AdSense（ID を置換／不要ならコメントアウト） -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-        data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"></script>
-</head>
+  --primary:#1a1a1a;        /* 見出し文字色 */
+  --secondary:#555a60;      /* サブ文字色 */
 
-<body>
-<div class="wrap">
-  <header><h1>譜読みトレーナー</h1></header>
+  --accent:#b86e6e;         /* キーカラー */
+  --accent-dark:#8a4e4e;
+  --accent-light:#e9dcd7;
 
-  <!-- 上バナー広告 -->
-  <div class="ad-top">
-    <ins class="adsbygoogle"
-         style="display:block;width:100%;max-width:728px;height:90px;margin:0 auto"
-         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-         data-ad-slot="YYYYYYYYYY"
-         data-ad-format="horizontal"></ins>
-  </div>
-  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  --glass:hsla(0,0%,100%,.55);
+  --glass-border:hsla(0,0%,100%,.28);
+}
 
-  <!-- ─── メイン ─── -->
-  <section class="panel">
-    <!-- 譜面 -->
-    <div class="staff-shell">
-      <div class="staff-frame" id="staffFrame">
-        <div id="staffScroll">
-          <div id="staffHost"></div>
-          <canvas id="highlightCanvas"></canvas>
-        </div>
-        <div id="judgeLayer"></div>
-      </div>
-    </div>
+/* ---------- 2. Base / Global BG ---------- */
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP',sans-serif;
+  background:var(--bg);color:var(--primary);line-height:1.6;overflow-x:hidden
+}
+.gradient-bg{
+  position:fixed;inset:0;
+  background:radial-gradient(circle at var(--mouse-x,50%) var(--mouse-y,50%),var(--accent-light)0%,var(--bg)80%);
+  opacity:.35;z-index:-2;animation:gradShift 15s ease infinite
+}
+@keyframes gradShift{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.2) rotate(180deg)}}
+.noise{
+  position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.03;
+  background-image:url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMyIgaGVpZ2h0PSIzIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxmaWx0ZXIgaWQ9Im4iPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjEuNSIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIzIiBoZWlnaHQ9IjMiIGZpbHRlcj0idXJsKCNuKSIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==')
+}
 
-    <!-- キーボード -->
-    <div class="kbd-wrap">
-      <div class="kbd">
-        <div id="kbdBlacks" class="kbd-blacks"></div>
-        <div id="kbdWhites" class="kbd-whites"></div>
-      </div>
-      <div class="help">上段：黒鍵、下段：白鍵。オクターブは問いません（マイク時は厳密）。</div>
-    </div>
+/* ---------- 3. Header ---------- */
+header{
+  position:fixed;inset:0 auto auto 0;width:100%;padding:1rem 2rem;
+  background:var(--glass);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--glass-border);z-index:1000;transition:transform .4s
+}
+.header-content{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+.logo{
+  font-size:1.8rem;font-weight:800;
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  cursor:pointer;transition:transform .3s
+}
+.logo:hover{transform:scale(1.05)}
+nav ul{display:flex;gap:2rem;list-style:none}
+nav a{color:var(--secondary);text-decoration:none;position:relative;transition:color .3s}
+nav a::after{content:'';position:absolute;bottom:-5px;left:0;width:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent-dark));transition:width .3s}
+nav a:hover{color:var(--accent-dark)}nav a:hover::after{width:100%}
 
-    <!-- 設定 UI（折りたたみカード方式） -->
-    <div class="controls">
+/* ---------- 4. Hero ---------- */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:7rem 2rem 4rem;position:relative
+}
+.hero h1{
+  font-size:clamp(3rem,8vw,6rem);font-weight:900;margin-bottom:1.5rem;line-height:1.1;
+  color:var(--primary);                       /* ← 強制的に単色テキスト */
+  background:none;-webkit-background-clip:initial;-webkit-text-fill-color:currentColor
+}
+.hero p{font-size:1.5rem;color:var(--secondary);margin-bottom:3rem}
+.cta-button{
+  display:inline-block;padding:1.2rem 3rem;border-radius:50px;font-weight:600;font-size:1.1rem;
+  background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;
+  position:relative;overflow:hidden;transition:all .3s
+}
+.cta-button:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(184,110,110,.35)}
+.cta-button::before{content:'';position:absolute;inset:0;left:-100%;background:rgba(255,255,255,.2);transition:left .5s}
+.cta-button:hover::before{left:100%}
 
-      <!-- 動作モード -->
-      <details open class="card">
-        <summary><span class="icon">🎛️</span> 動作モード</summary>
-        <div class="grid-2">
-          <button id="modeSimple" class="btn btn-outline w-full">🎹 鍵盤で回答</button>
-          <button id="modeMic"    class="btn btn-outline w-full">🎙️ マイクで回答</button>
-        </div>
-      </details>
+/* Floating shapes */
+.floating-elements{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.float-shape{position:absolute;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-dark));opacity:.1;animation:float 20s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-40px)}}
+.float-shape:nth-child(1){width:320px;height:320px;top:-60px;left:-60px}
+.float-shape:nth-child(2){width:240px;height:240px;bottom:-100px;right:-40px}
+.float-shape:nth-child(3){width:260px;height:260px;top:60%;left:10%}
 
-      <!-- 出題範囲 -->
-      <details class="card">
-        <summary><span class="icon">🔔</span> 出題範囲</summary>
-        <div class="grid-2">
-          <label>最低音</label><select id="lowNote"></select>
-          <label>最高音</label><select id="highNote"></select>
-        </div>
-      </details>
+/* ---------- 5. Section Title ---------- */
+.section-title{font-size:2.2rem;font-weight:800;text-align:center;margin:0 auto 2.5rem;
+  background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
-      <!-- 表記 & 音名 -->
-      <details class="card">
-        <summary><span class="icon">🎼</span> 表記と音名</summary>
-        <div class="grid-2">
-          <label>♯/♭ の扱い</label>
-          <select id="accidentals">
-            <option value="natural">ナチュラルのみ</option>
-            <option value="sharp">♯のみ</option>
-            <option value="flat">♭のみ</option>
-            <option value="both">♯/♭混在</option>
-          </select>
+/* ---------- 6. Categories ---------- */
+.categories{padding:6rem 2rem 4rem;max-width:1200px;margin:0 auto}
+.category-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem}
+.category-card{background:var(--surface);border:1px solid var(--border);border-radius:30px;padding:2rem;text-align:center;cursor:pointer;transition:background .3s,transform .3s}
+.category-card:hover{background:var(--accent-light);transform:translateY(-4px)}
+.category-icon{font-size:2.5rem;margin-bottom:1rem}
+.category-title{font-weight:700;margin-bottom:.5rem}
+.category-desc{color:var(--secondary)}
 
-          <label>オクターブ一致</label>
-          <select id="octaveStrict">
-            <option value="false" selected>無視する</option>
-            <option value="true">厳密に判定</option>
-          </select>
-        </div>
-      </details>
+/* ---------- 7. Products ---------- */
+.products{padding:6rem 2rem;max-width:1400px;margin:0 auto}
+.filter-tabs{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:2.5rem;justify-content:center}
+.filter-tab{padding:.6rem 1.4rem;border-radius:30px;background:var(--surface);border:1px solid var(--border);color:var(--secondary);cursor:pointer;font-weight:600;transition:all .3s}
+.filter-tab.active,.filter-tab:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2rem}
+.product-card{background:var(--surface);border:1px solid var(--border);border-radius:30px;overflow:hidden;cursor:pointer;transition:transform .3s,box-shadow .3s}
+.product-card:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.06)}
+.product-image{background:var(--surface);height:200px;display:flex;align-items:center;justify-content:center}
+.product-image img{max-width:80%;max-height:80%;object-fit:contain}
+.product-info{padding:1.5rem}
+.product-name{font-size:1.2rem;font-weight:700;margin-bottom:.5rem}
+.product-price{font-size:1.3rem;font-weight:700;color:var(--accent-dark)}
 
-      <!-- 速度 & ピッチ -->
-      <details class="card">
-        <summary><span class="icon">⏱️</span> 速度と判定</summary>
-        <div class="grid-2">
-          <label>速度モード</label>
-          <select id="speedMode">
-            <option value="normal" selected>普通（≤1 秒）</option>
-            <option value="pro">プロ（350–900 ms）</option>
-          </select>
+/* ---------- 8. Modal & Gallery ---------- */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;padding:2rem;overflow-y:auto}
+.modal-content{max-width:1000px;margin:0 auto;background:var(--surface);border-radius:30px;overflow:hidden;border:1px solid var(--glass-border);position:relative}
+.modal-close{position:absolute;top:1.5rem;right:1.5rem;width:40px;height:40px;background:var(--glass);border:1px solid var(--glass-border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.2rem;transition:all .3s;z-index:10}
+.modal-close:hover{background:var(--accent);color:#fff;transform:rotate(90deg)}
+.modal-body{display:grid;grid-template-columns:1fr 1fr;min-height:500px}
+.modal-image{position:relative;background:var(--surface);display:flex;align-items:center;justify-content:center}
+#modalMainImg{max-width:90%;max-height:90%;object-fit:contain}
+.nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:var(--glass);border:none;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;transition:background .3s;color:var(--primary)}
+.nav-btn:hover{background:var(--accent);color:#fff}
+.nav-prev{left:10px}.nav-next{right:10px}
+.thumb-strip{display:flex;gap:.5rem;overflow-x:auto;padding:.8rem;border-top:1px solid var(--border)}
+.thumb-strip img{width:60px;height:60px;object-fit:cover;border-radius:10px;cursor:pointer;opacity:.6;transition:opacity .2s}
+.thumb-strip img.active,.thumb-strip img:hover{opacity:1;box-shadow:0 0 0 2px var(--accent)}
+.modal-details{padding:3rem}
+.modal-title{font-size:2rem;font-weight:800;margin-bottom:1rem}
+.customization-section{margin-bottom:1.5rem}
+.customization-title{font-size:1.1rem;font-weight:600;margin-bottom:.6rem}
+.material-options{display:flex;gap:.6rem;flex-wrap:wrap}
+.material-option{padding:.6rem 1.2rem;background:var(--glass);border:2px solid var(--glass-border);border-radius:20px;cursor:pointer;transition:all .3s}
+.material-option:hover{border-color:var(--accent)}
+.material-option.selected{background:var(--accent);border-color:var(--accent);color:#fff}
+/* 数量 */
+.qty-box{display:flex;align-items:center;gap:.8rem;margin-top:1rem}
+.qty-btn{width:36px;height:36px;border:none;border-radius:8px;background:var(--surface);font-size:1.4rem;cursor:pointer}
+#qtyValue{min-width:24px;text-align:center;font-weight:600}
+/* カートボタン */
+.add-to-cart{width:100%;padding:1.1rem;border:none;border-radius:15px;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all .3s;margin-top:1.5rem;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff}
+.add-to-cart:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(184,110,110,.4)}
 
-          <label>基準ピッチ (A4)</label>
-          <input id="a4" type="number" min="415" max="466" step="1" value="440" />
-        </div>
-      </details>
+/* ---------- 9. Footer ---------- */
+footer{padding:3rem 2rem;background:var(--glass);backdrop-filter:blur(20px);border-top:1px solid var(--glass-border);text-align:center;margin-top:5rem}
 
-      <!-- マイク -->
-      <details class="card">
-        <summary><span class="icon">🎤</span> マイク</summary>
-        <div class="grid-2">
-          <button id="startMic" class="btn btn-primary w-full">マイク開始 / 停止</button>
-          <div id="micStatus" class="pill">Mic OFF</div>
-          <div id="pitchReadout" class="pill">– Hz</div>
-        </div>
-      </details>
+/* ---------- 10. Floating Mini-cart ---------- */
+.mini-cart{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#fff;padding:.8rem 1.2rem;border-radius:40px;font-weight:700;cursor:pointer;z-index:3000;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.mini-cart:hover{opacity:.85}
+.mini-cart #cartCount{margin-right:.4rem}
+.cart-dropdown{display:none;position:absolute;bottom:120%;right:0;width:260px;background:var(--surface);color:var(--primary);border:1px solid var(--border);border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.12);padding:1rem;max-height:320px;overflow-y:auto}
+.mini-cart.open .cart-dropdown{display:block}
+.cart-item{position:relative;font-size:.9rem;margin-bottom:.8rem;border-bottom:1px dashed var(--border);padding:.6rem .8rem .6rem 0}
+.cart-item:last-child{border:none;margin:0;padding:0}
+.cart-item .del{position:absolute;right:4px;top:2px;font-weight:700;cursor:pointer;color:var(--accent-dark)}
+.cart-total{font-weight:700;text-align:right;margin-top:.6rem}
+.clear-cart-btn{display:block;width:100%;margin-top:.8rem;padding:.4rem;border:none;border-radius:8px;background:var(--accent-light);color:var(--primary);cursor:pointer;font-size:.85rem}
+.clear-cart-btn:hover{background:var(--accent);color:#fff}
 
-      <!-- 次へ -->
-      <div class="row-end">
-        <button id="nextBtn" class="btn btn-accent w-full">▶ 次の問題</button>
-      </div>
-    </div><!-- /.controls -->
+/* ---------- 11. Order Flow Cards ---------- */
+.orderflow{padding:6rem 2rem;background:var(--surface)}
+.flow-wrapper{display:grid;grid-template-columns:repeat(6,1fr);gap:1.6rem;max-width:1400px;margin:0 auto}
+.flow-step{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:2rem 1.2rem;text-align:center;transition:transform .3s,box-shadow .3s}
+.flow-step:hover{transform:translateY(-6px);box-shadow:0 8px 24px rgba(0,0,0,.08);border-color:var(--accent)}
+.step-icon{font-size:2rem;margin-bottom:1rem;line-height:1}
+.flow-step h3{font-size:1.05rem;font-weight:700;margin-bottom:.4rem}
+.flow-step p{font-size:.85rem;color:var(--secondary);opacity:.8}
+/* SP 横スクロール */
+@media(max-width:900px){
+  .flow-wrapper{grid-template-columns:repeat(6,80%);grid-auto-flow:column;overflow-x:auto;padding-bottom:1rem;scroll-snap-type:x mandatory}
+  .flow-step{min-width:100%;scroll-snap-align:center}
+}
 
-    <!-- HUD -->
-    <div class="stats">
-      <div class="stat">問題 <b id="qCount">0</b></div>
-      <div class="stat">正解 <b id="correct">0</b></div>
-      <div class="stat">正答率 <b id="acc">0%</b></div>
-      <div class="stat">連続正解 <b id="streak">0</b></div>
+/* ---------- 12. Custom Cursor ---------- */
+.cursor{width:20px;height:20px;border:2px solid var(--accent);border-radius:50%;position:fixed;pointer-events:none;transition:all .1s;z-index:9999;mix-blend-mode:difference}
+.cursor-follower{width:40px;height:40px;background:rgba(184,110,110,.1);border-radius:50%;position:fixed;pointer-events:none;transition:all .3s;z-index:9998}
 
-      <div class="score">
-        <div class="tile" id="tileScore"><h3>SCORE</h3><p id="scoreVal">0</p></div>
-        <div class="tile" id="tileMult"><h3>MULT</h3><p id="multVal">x1</p></div>
-        <div class="tile" id="tileLast"><h3>LAST</h3><p id="lastRank">—</p></div>
-      </div>
-    </div>
-  </section>
+/* ---------- 13. Responsive ---------- */
+@media(max-width:1024px){.modal-body{grid-template-columns:1fr}.modal-image{height:320px}}
+@media(max-width:768px){.hero h1{font-size:3rem}nav ul{display:none}}
 
-  <!-- 下バナー広告 -->
-  <div class="ad-bottom">
-    <ins class="adsbygoogle"
-         style="display:block;width:100%;max-width:728px;height:90px;margin:24px auto 0"
-         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-         data-ad-slot="ZZZZZZZZZZ"
-         data-ad-format="horizontal"></ins>
-  </div>
-  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-
-  <footer>Grand Staff + Web Audio — © 2025</footer>
-</div>
-
-<!-- 外部スクリプト -->
-<script src="app.js" defer></script>
-</body>
-</html>
+/* ---------- 14. Utility ---------- */
+@keyframes spin{to{transform:rotate(360deg)}}
